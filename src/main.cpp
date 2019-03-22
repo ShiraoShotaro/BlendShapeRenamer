@@ -10,12 +10,12 @@ namespace {
 std::unordered_map<std::string, std::string> rename_map;
 
 void initializeRenameMap(void) {
-	rename_map["vrc.v_aa"] = u8"Ç†";
-	rename_map["vrc.v_ih"] = u8"Ç¶";
-	rename_map["vrc.v_ou"] = u8"Ç§";
-	rename_map["vrc.v_e"] = u8"Ç¢";
-	rename_map["vrc.v_oh"] = u8"Ç®";
-	rename_map["vrc.eye_close"] = u8"Ç‹ÇŒÇΩÇ´";
+	rename_map["blendShape1.VRC_v_aa"] = u8"Ç†";
+	rename_map["blendShape1.VRC_v_TH"] = u8"Ç¶";
+	rename_map["blendShape1.VRC_v_ou"] = u8"Ç§";
+	rename_map["blendShape1.VRC_v_E"] = u8"Ç¢";
+	rename_map["blendShape1.VRC_v_oh"] = u8"Ç®";
+	rename_map["blendShape1.blink"] = u8"Ç‹ÇŒÇΩÇ´";
 }
 
 }
@@ -69,9 +69,29 @@ void PrintNode(FbxNode* pNode) {
 	for (int j = 0; j < pNode->GetChildCount(); j++) PrintNode(pNode->GetChild(j));
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char * argv[]) {
+
+	// CP932ÇÕñ≈ÇÒÇ≈ÇÊÇµÅB
 	SetConsoleOutputCP(CP_UTF8);
-	if (argc != 2) {
+
+	std::cout << "Blendshape Duplicator" << std::endl;
+
+	// äiî[êÊ
+	std::string src_fbx_filename;
+	std::string dst_fbx_filename;
+
+	switch (argc) {
+	case 1:
+
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	}
+	if (argc == 1) {
+		// ïWèÄì¸óÕéwíË
+	}else if (argc != 2) {
 		std::cerr << "wlib Blendshape Renamer ver 0.1" << std::endl;
 		std::cerr << "usage: BlendShapeRenamer.exe [fbx file]" << std::endl;
 		return -1;
