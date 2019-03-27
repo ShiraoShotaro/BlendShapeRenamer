@@ -1,157 +1,60 @@
-#include <fbxsdk.h>
+#include "RenameSettings.hpp"
+#include "BlendShapeRenamer.hpp"
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <unordered_map>
 #include <Windows.h>
 
-namespace {
-
-std::unordered_map<std::string, std::string> rename_map;
-
-void initializeRenameMap(void) {
-	rename_map["blendShape1.VRC_v_aa"] = u8"あ";
-	rename_map["blendShape1.VRC_v_TH"] = u8"え";
-	rename_map["blendShape1.VRC_v_ou"] = u8"う";
-	rename_map["blendShape1.VRC_v_E"] = u8"い";
-	rename_map["blendShape1.VRC_v_oh"] = u8"お";
-	rename_map["blendShape1.blink"] = u8"まばたき";
-}
-
-}
-
-/**
- * Print an attribute.
- */
-void PrintAttribute(FbxNodeAttribute* pAttribute) {
-	if (!pAttribute) return;
-
-	//FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
-	//FbxString attrName = pAttribute->GetName();
-	//PrintTabs();
-	// Note: to retrieve the character array of a FbxString, use its Buffer() method.
-	//printf("ATTR : %s, %s [c = %d]\n", typeName.Buffer(), attrName.Buffer(), pAttribute->GetNodeCount());
-	
-	if (pAttribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
-		FbxGeometry * geometry = (FbxGeometry*)pAttribute;
-		int blend_shape_count = geometry->GetDeformerCount();
-		for (int def_idx = 0; def_idx < blend_shape_count; ++def_idx) {
-			FbxBlendShape * blend_shape = (FbxBlendShape*)geometry->GetDeformer(def_idx, FbxDeformer::eBlendShape);
-			if (blend_shape == nullptr) continue;
-			int blend_shape_channel_count = blend_shape->GetBlendShapeChannelCount();
-			for (int ch_idx = 0; ch_idx < blend_shape_channel_count; ch_idx++) {
-				FbxBlendShapeChannel * blend_shape_ch = (FbxBlendShapeChannel*)blend_shape->GetBlendShapeChannel(ch_idx);
-				std::cout << "-- BlendShape is found = " << blend_shape_ch->GetName();
-				
-				if (rename_map.count(blend_shape_ch->GetName())) {
-					//blend_shape_ch->SetName(rename_map.at(blend_shape_ch->GetName()).c_str());
-					FbxBlendShapeChannel * dup = (FbxBlendShapeChannel*)blend_shape_ch->Clone();
-					dup->SetName(rename_map.at(blend_shape_ch->GetName()).c_str());
-					blend_shape->AddBlendShapeChannel(dup);
-					std::cout << " is duprecated as " << dup->GetName();
-				}
-				std::cout << std::endl;
-				//std::stringstream sstr;
-				//sstr << blend_shape->GetName() << u8".ほげ" << ch_idx << std::ends;
-				//blend_shape_ch->SetName(sstr.str().c_str());
-			}
-		}
-	}
-}
-
-void PrintNode(FbxNode* pNode) {
-	std::cout << "Seek : " << pNode->GetName() << std::endl;
-
-	// Print the node's attributes.
-	for (int i = 0; i < pNode->GetNodeAttributeCount(); i++) PrintAttribute(pNode->GetNodeAttributeByIndex(i));
-
-	// Recursively print the children.
-	for (int j = 0; j < pNode->GetChildCount(); j++) PrintNode(pNode->GetChild(j));
-}
 
 int main(int argc, char * argv[]) {
 
-	// CP932は滅んでよし。
+	// CP932 is DEAD.
 	SetConsoleOutputCP(CP_UTF8);
 
-	std::cout << "Blendshape Duplicator" << std::endl;
+	std::cout << "Blendshape Duplicator Version 0.1.0 - Shirao Shotaro" << std::endl;
+	std::cout << "Github on https://github.com/.....hogehoge" << std::endl;
 
-	// 格納先
-	std::string src_fbx_filename;
-	std::string dst_fbx_filename;
-
-	switch (argc) {
-	case 1:
-
-		break;
-	case 2:
-		break;
-	case 3:
-		break;
-	}
-	if (argc == 1) {
-		// 標準入力指定
-	}else if (argc != 2) {
-		std::cerr << "wlib Blendshape Renamer ver 0.1" << std::endl;
-		std::cerr << "usage: BlendShapeRenamer.exe [fbx file]" << std::endl;
-		return -1;
-	}
-
-	initializeRenameMap();
-
-	const std::string filename(argv[1]);
-	const std::string export_filename("modified.fbx");
-	
-	FbxManager * fbx_manager = FbxManager::Create();
-
-	FbxIOSettings * ios = FbxIOSettings::Create(fbx_manager, IOSROOT);
-	fbx_manager->SetIOSettings(ios);
-
-	FbxImporter * fbx_importer = FbxImporter::Create(fbx_manager, "");
-	FbxExporter * fbx_exporter = FbxExporter::Create(fbx_manager, "");
-
-	std::cout << "input filename  : " << filename << " ........ ";
-	if (!fbx_importer->Initialize(filename.c_str(), -1, fbx_manager->GetIOSettings())) {
-		std::cerr << "[FAILED]" << std::endl << "Call to FbxImporter::Initialize() failed." << std::endl;
-		std::cerr << "Error returned: " << fbx_importer->GetStatus().GetErrorString() << std::endl;
-		return -1;
-	}
-	std::cout << "[SUCCESS]" << std::endl;
-
-	std::cout << "output filename : " << export_filename << " ........ ";
-	if (!fbx_exporter->Initialize(export_filename.c_str(), -1, fbx_manager->GetIOSettings())) {
-		std::cerr << "[FAILED]" << std::endl << "Call to FbxExporter::Initialize() failed." << std::endl;
-		std::cerr << "Error returned: " << fbx_exporter->GetStatus().GetErrorString() << std::endl;
-		return -2;
-	}
-	std::cout << "[SUCCESS]" << std::endl;
-
-	FbxScene * fbx_scene = FbxScene::Create(fbx_manager, "myScene");
-	std::cout << "Scene created" << std::endl;
-
-	std::cout << "Importing fbx ........ ";
-	fbx_importer->Import(fbx_scene);
-	std::cout << "[FINISHED]" << std::endl;
-	fbx_importer->Destroy();
-
-	FbxNode * root_node = fbx_scene->GetRootNode();
-	if(root_node) {
-		for (int i = 0; i < root_node->GetChildCount(); i++) PrintNode(root_node->GetChild(i));
-	}
-
-	//Export
-	std::cout << "Exporting fbx ........ ";
-	fbx_exporter->Export(fbx_scene);
-	std::cout << "[FINISHED]" << std::endl;
-	fbx_exporter->Destroy();
-
-	fbx_manager->Destroy();
-
-	std::cout << "Finished all processes successfully." << std::endl;
-
-#ifdef _DEBUG
-	getchar();
+#if defined(BD_LANG_EN)
+	std::cout << "Thank you for using this software and your support." << std::endl;
+	std::cout << "If you find some problems, please report to github issue or contact me twitter @shiraoshotaro." << std::endl;
+	std::cout << "Also if you like this software, please visit my booth and give me a drink :-)" << std::endl;
+	std::cout << "http://booth.///" << std::endl;
+#elseif defined(BD_LANG_JP)
+	std::cout << "Blendshape Duplicatorのご利用ありがとうございます" << std::endl;
+	std::cout << "もともと自分用に開発したものです。不具合などございましたらgithubのissueかTwitterアカウント@shiraoshotaroまでコンタクトをお願い致します"
+	std::cout << "また、もし気に入って頂けましたら、Boothによるご支援も宜しくお願いいたします" << std::endl;
+	std::cout << "http://booth.///" << std::endl;
 #endif
 
-	return 0;
+	if (argc != 2) {
+		std::cerr << "Invalid Argument." << std::endl;
+		std::cerr << "Usage : BlendshapeDuplicator.exe [Settings json filepath]" << std::endl;
+		return -1;
+	}
+
+	wlib::RenameSettings rename_settings = wlib::RenameSettings::loadFromJson(argv[1]);
+	if (!rename_settings.isValid()) {
+		std::cerr << "An error has occured." << std::endl;
+		return -2;
+	}
+
+	if (!rename_settings.showOverwriteWarning()) {
+		std::cerr << "Operation is canceled by user." << std::endl;
+		return -3;
+	}
+
+	int ret = wlib::BlendshapeRenamer(rename_settings).process();
+
+	if (ret == 0) {
+		std::cout << "Finished successfully." << std::endl;
+	}
+	else {
+		std::cerr << "An error has occured." << std::endl;
+	}
+
+	std::cout << "Push ENTER to exit." << std::endl;
+	getchar();
+
+	return ret;
 }
