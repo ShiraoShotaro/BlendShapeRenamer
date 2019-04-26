@@ -20,12 +20,12 @@ bool wlib::RenameSettings::isValid() const { return !this->getSourceFBXFilename(
 
 bool wlib::RenameSettings::showOverwriteWarning() const {
 	if (!this->overwrite_ok_){
-		std::ifstream ifst(this->getSourceFBXFilename(), std::ios::binary);
+		std::ifstream ifst(this->getDestinationFBXFilename(), std::ios::binary);
 		if (ifst) {
 			std::string temp;
 			do {
 				temp.clear();
-				std::cout << "Destination file [ " << this->getDestinationFBXFilename() << " ] has existed. Overwrite (Y / N) ? " << std::endl;
+				std::cout << "Destination file [ " << this->getDestinationFBXFilename() << " ] has existed. Overwrite (y / n) ? ";
 				std::cin >> temp;
 			} while (temp != "y" && temp != "n");
 			if (temp == "n") return false;

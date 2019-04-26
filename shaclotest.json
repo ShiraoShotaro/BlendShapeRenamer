@@ -1,0 +1,12 @@
+{
+    "src": "Model_Shaclo_mod.fbx",
+    "dst": "Model_Shaclo_mod.fbx",
+    "map":{
+        "vrc.v_aa": ["あ"],
+        "vrc.v_ih": ["い"],
+        "vrc.v_kk": ["う"],
+        "vrc.v_ee": ["え"],
+        "vrc.v_ou": ["お"],
+        "blink.brink": ["まばたき"]
+    }
+}
